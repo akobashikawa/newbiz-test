@@ -34,9 +34,10 @@ router.all('/api/request', async (req, res, next) => {
     case 'GET':
       try {
         const response = await axios({method, url, headers});
-        return res.end(response.data);
+        return res.json(response.data);
       } catch (error) {
-        console.log(error);
+        console.log(error.response ? error.response : error);
+        res.status(error.response.status).json(error.response.statusText);
       }
       break;
     case 'POST':
