@@ -113,4 +113,16 @@ router.all('/checkout', (req, res, next) => {
   });
 });
 
+router.all('/timeout', (req, res, next) => {
+  const method = req.method;
+  const query = req.query || undefined;
+  const header = req.header;
+  const params = req.params || undefined;
+  const body = req.body || undefined;
+  console.log({method, query, header, params, body});
+  res.json({
+    method, query, params, body,
+  });
+});
+
 module.exports = router;

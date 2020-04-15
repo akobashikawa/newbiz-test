@@ -76,6 +76,7 @@
                 <b-input type="number" v-model="amount" placeholder="amount"></b-input>
                 <b-input type="number" v-model="purchasenumber" placeholder="purchasenumber"></b-input>
                 formbuttoncolor: <b-form-input type="color" v-model="formbuttoncolor"></b-form-input>
+                <b-input type="text" v-model="merchantlogo" placeholder="merchantlogo"></b-input>
                 <b-input type="text" v-model="cardholdername" placeholder="cardholdername"></b-input>
                 <b-input type="text" v-model="cardholderlastname" placeholder="cardholderlastname"></b-input>
                 <b-input type="number" v-model="expirationminutes" placeholder="expirationminutes"></b-input>
@@ -103,7 +104,7 @@
     <script src="https://static-content-qas.vnforapps.com/vToken/js/checkout.js"></script>
 
     <script>
-        const serverUrl = 'http://localhost:3000';
+        const serverUrl = window.location.origin;
 
         const app = new Vue({
             el: '#app',
@@ -127,6 +128,7 @@
                 sessionError: '',
                 sessionKey: null,
 
+                merchantlogo: 'https://www.aviva.pe/assets/svg/logo.svg',
                 action: `${serverUrl}/checkout`,
                 timeouturl: `${serverUrl}/timeout`,
                 purchasenumber: 123,
@@ -152,6 +154,7 @@
                     const data = {
                         action: this.action,
                         merchantid: this.merchantId,
+                        merchantlogo: this.merchantlogo,
                         sessiontoken: this.sessionKey,
                         amount: this.amount,
                         purchasenumber: this.purchasenumber,
