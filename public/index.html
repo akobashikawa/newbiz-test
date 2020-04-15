@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+
+    <title>Newbiz Test</title>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>Newbiz Test</h1>
+
+            <b-input type="text" v-model="serverUrl" placeholder="Server URL"></b-input>
+
+            <section class="border p-4 shadow">
+                <h2>Security</h2>
+                <b-input type="text" v-model="urlSecurity" placeholder="URL"></b-input>
+                <b-input type="text" v-model="usuario" placeholder="Usuario"></b-input>
+                <b-input type="text" v-model="password" placeholder="Password"></b-input>
+                <b-input type="text" v-model="authorization" placeholder="Authorization"></b-input>
+    
+                <b-btn variant="primary" @click="getSecurityKey" class="my-2">Get securityKey</b-btn>
+    
+                <h4>Respuesta</h4>
+                <pre>{{ securityRespuesta }}</pre>
+    
+                <h4>Error</h4>
+                <pre>{{ securityError }}</pre>
+            </section>
+
+            <section class="border p-4 shadow">
+                <h2>Session</h2>
+                <b-input type="text" v-model="urlSession" placeholder="URL"></b-input>
+                <b-input type="text" v-model="merchantId" placeholder="merchantId"></b-input>
+                <b-input type="text" v-model="securityKey" placeholder="securityKey"></b-input>
+                <b-input type="number" v-model="amount" placeholder="amount"></b-input>
+    
+                <b-btn variant="primary" @click="getSessionKey" class="my-2">Get sessionKey</b-btn>
+    
+                <h4>Respuesta</h4>
+                <pre>{{ sessionRespuesta }}</pre>
+    
+                <h4>Error</h4>
+                <pre>{{ sessionError }}</pre>
+            </section>
+        </div>
+    </div>
+
+    <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                serverUrl: 'http://localhost:3000/api/request',
+                urlSecurity: 'https://apitestenv.vnforapps.com/api.security/v1/security',
+                usuario: '',
+                password: '',
+                securityRespuesta: '',
+                securityError: '',
+                securityKey: null,
+
+                urlSession: 'https://apitestenv.vnforapps.com/api.ecommerce/v2/ecommerce/token/session',
+                amount: '',
+                merchantId: '342062522',
+                sessionRespuesta: '',
+                sessionError: '',
+            },
+            computed: {
+                authorization() {
+                    const str = `${this.usuario}:${this.password}`;
+                    const encoded = window.btoa(unescape(encodeURIComponent(str)));
+                    return `Basic ${encoded}`;
+                },
+            },
+            methods: {
+                getSecurityKey() {
+                    const url = `${this.serverUrl}?url=${this.urlSecurity}`;
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': this.authorization,
+                    };
+                    axios({
+                        method: 'post',
+                        url,
+                        headers
+                        })
+                        .then(response => {
+                            console.log(response);
+                            this.securityRespuesta = response.data;
+                            this.securityKey = response.data;
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            this.securityError = error;
+                        });
+                },
+
+                getSessionKey() {
+                    const url = `${this.serverUrl}?url=${this.urlSession}`;
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': this.securityKey,
+                    };
+                    const data = {
+                        amount: this.amount,
+                        channel: 'paycard',
+                    };
+                    axios({
+                        method: 'post',
+                        url,
+                        headers,
+                        data,
+                    })
+                        .then(response => {
+                            console.log(response);
+                            this.sessionRespuesta = response.data;
+                            this.sessionKey = response.data.sessionKey;
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            this.sessionError = error;
+                        });
+                },
+            }
+        });
+    </script>
+</body>
+</html>
