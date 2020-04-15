@@ -53,7 +53,7 @@ router.all('/api/request', async (req, res, next) => {
   }
 });
 
-router.post('/newbiz/api.security/v1/security', async (req, res, next) => {
+router.post('/niubiz/api.security/v1/security', async (req, res, next) => {
   const method = req.method;
   const url = 'https://apitestenv.vnforapps.com/api.security/v1/security';
   const headers = {
@@ -74,7 +74,7 @@ router.post('/newbiz/api.security/v1/security', async (req, res, next) => {
   }
 });
 
-router.post('/newbiz/api.ecommerce/v2/ecommerce/token/session/:merchantId', async (req, res, next) => {
+router.post('/niubiz/api.ecommerce/v2/ecommerce/token/session/:merchantId', async (req, res, next) => {
   const method = req.method;
   const merchantId = req.params['merchantId'];
   if (!merchantId) {
