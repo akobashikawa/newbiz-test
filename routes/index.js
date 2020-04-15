@@ -53,4 +53,52 @@ router.all('/api/request', async (req, res, next) => {
   }
 });
 
+router.post('/newbiz/api.security/v1/security', async (req, res, next) => {
+  const method = req.method;
+  const url = 'https://apitestenv.vnforapps.com/api.security/v1/security';
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': req.headers['authorization']
+  };
+
+  console.log(req.body, req.headers);
+  const data = req.body;
+  
+  console.log({ url, headers, data });
+  try {
+    const response = await axios({ method, url, headers, data });
+    return res.end(response.data);
+  } catch (error) {
+    // console.log(error.response ? error.response : error);
+    res.status(error.response.status).json(error.response.statusText);
+  }
+});
+
+router.post('/newbiz/api.ecommerce/v2/ecommerce/token/session/:merchantId', async (req, res, next) => {
+  const method = req.method;
+  const merchantId = req.params['merchantId'];
+  if (!merchantId) {
+    return res.status(402).json({
+      message: 'Indicar merchantId en el query'
+    });
+  }
+
+  const url = `https://apitestenv.vnforapps.com/api.ecommerce/v2/ecommerce/token/session/${merchantId}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': req.headers['authorization']
+  };
+
+  console.log(req.body, req.headers);
+  const data = req.body;
+  
+  console.log({ url, headers, data });
+  try {
+    const response = await axios({ method, url, headers, data });
+    return res.json(response.data);
+  } catch (error) {
+    res.end(error);
+  }
+});
+
 module.exports = router;

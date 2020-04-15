@@ -20,8 +20,6 @@
         <div class="container">
             <h1>Newbiz Test</h1>
 
-            <b-input type="text" v-model="serverUrl" placeholder="Server URL"></b-input>
-
             <section class="border p-4 shadow">
                 <h2>Security</h2>
                 <b-input type="text" v-model="urlSecurity" placeholder="URL"></b-input>
@@ -67,30 +65,37 @@
         const app = new Vue({
             el: '#app',
             data: {
-                serverUrl: 'http://localhost:3000/api/request',
-                urlSecurity: 'https://apitestenv.vnforapps.com/api.security/v1/security',
+                serverUrl: 'http://rulokoba.me:3000/',
+                // urlSecurity: 'https://apitestenv.vnforapps.com/api.security/v1/security',
+                urlSecurity: 'http://rulokoba.me:3000/newbiz/api.security/v1/security',
                 usuario: '',
                 password: '',
+                authorization: '',
                 securityRespuesta: '',
                 securityError: '',
                 securityKey: null,
 
-                urlSession: 'https://apitestenv.vnforapps.com/api.ecommerce/v2/ecommerce/token/session',
+                // urlSession: 'https://apitestenv.vnforapps.com/api.ecommerce/v2/ecommerce/token/session',
+                urlSession: 'http://rulokoba.me:3000/newbiz/api.ecommerce/v2/ecommerce/token/session',
                 amount: '',
                 merchantId: '342062522',
                 sessionRespuesta: '',
                 sessionError: '',
             },
             computed: {
-                authorization() {
-                    const str = `${this.usuario}:${this.password}`;
-                    const encoded = window.btoa(unescape(encodeURIComponent(str)));
-                    return `Basic ${encoded}`;
-                },
             },
             methods: {
+                setAuthorization() {
+                    if (this.authorization) {
+                        return;
+                    }
+                    const str = `${this.usuario}:${this.password}`;
+                    const encoded = window.btoa(unescape(encodeURIComponent(str)));
+                    this.authorization = `Basic ${encoded}`;
+                },
                 getSecurityKey() {
-                    const url = `${this.serverUrl}?url=${this.urlSecurity}`;
+                    this.setAuthorization();
+                    const url = this.urlSecurity;
                     const headers = {
                         'Content-Type': 'application/json',
                         'Authorization': this.authorization,
@@ -112,7 +117,7 @@
                 },
 
                 getSessionKey() {
-                    const url = `${this.serverUrl}?url=${this.urlSession}`;
+                    const url = `${this.urlSession}/${this.merchantId}`;
                     const headers = {
                         'Content-Type': 'application/json',
                         'Authorization': this.securityKey,
