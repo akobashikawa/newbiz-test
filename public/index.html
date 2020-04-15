@@ -20,20 +20,28 @@
         <div class="container">
             <h1>Newbiz Test</h1>
 
+            <b-input type="text" v-model="serverUrl" placeholder="Server URL"></b-input>
+
             <section class="border p-4 shadow">
                 <h2>Security</h2>
                 <b-input type="text" v-model="urlSecurity" placeholder="URL"></b-input>
-                <b-input type="text" v-model="usuario" placeholder="Usuario"></b-input>
-                <b-input type="text" v-model="password" placeholder="Password"></b-input>
-                <b-input type="text" v-model="authorization" placeholder="Authorization"></b-input>
+                <b-input type="text" v-model="usuario" placeholder="usuario"></b-input>
+                <b-input type="text" v-model="password" placeholder="password"></b-input>
+                <b-input type="text" v-model="authorization" placeholder="authorization"></b-input>
+
+                <pre class="mt-2 p-2 bg-dark text-white">{{ authorization }}</pre>
     
-                <b-btn variant="primary" @click="getSecurityKey" class="my-2">Get securityKey</b-btn>
+                <b-btn variant="primary" @click="getSecurityKey" class="my-2" :class="{'bg-success': securityRespuesta, 'bg-danger': securityError}">Get securityKey</b-btn>
     
-                <h4>Respuesta</h4>
-                <pre>{{ securityRespuesta }}</pre>
+                <div v-if="securityRespuesta">
+                    <h4>Respuesta</h4>
+                    <pre>{{ securityRespuesta }}</pre>
+                </div>
     
-                <h4>Error</h4>
-                <pre>{{ securityError }}</pre>
+                <div v-if="securityError">
+                    <h4>Error</h4>
+                    <pre>{{ securityError }}</pre>
+                </div>
             </section>
 
             <section class="border p-4 shadow">
@@ -42,14 +50,45 @@
                 <b-input type="text" v-model="merchantId" placeholder="merchantId"></b-input>
                 <b-input type="text" v-model="securityKey" placeholder="securityKey"></b-input>
                 <b-input type="number" v-model="amount" placeholder="amount"></b-input>
+
+                <pre class="mt-2 p-2 bg-dark text-white">{{ securityKey }}
+{{ sessionData }}
+                </pre>
     
-                <b-btn variant="primary" @click="getSessionKey" class="my-2">Get sessionKey</b-btn>
+                <b-btn variant="primary" @click="getSessionKey" class="my-2" :class="{'bg-success': sessionRespuesta, 'bg-danger': sessionError}">Get sessionKey</b-btn>
     
-                <h4>Respuesta</h4>
-                <pre>{{ sessionRespuesta }}</pre>
-    
-                <h4>Error</h4>
-                <pre>{{ sessionError }}</pre>
+                <div v-if="sessionRespuesta">
+                    <h4>Respuesta</h4>
+                    <pre>{{ sessionRespuesta }}</pre>
+                </div>
+                
+                <div v-if="sessionError">
+                    <h4>Error</h4>
+                    <pre>{{ sessionError }}</pre>
+                </div>
+            </section>
+
+            <section class="border p-4 shadow">
+                <h2>Checkout</h2>
+
+                <b-input type="text" v-model="action" placeholder="action"></b-input>
+                <b-input type="text" v-model="timeouturl" placeholder="timeouturl"></b-input>
+                <b-input type="number" v-model="amount" placeholder="amount"></b-input>
+                <b-input type="number" v-model="purchasenumber" placeholder="purchasenumber"></b-input>
+                formbuttoncolor: <b-form-input type="color" v-model="formbuttoncolor"></b-form-input>
+                <b-input type="text" v-model="cardholdername" placeholder="cardholdername"></b-input>
+                <b-input type="text" v-model="cardholderlastname" placeholder="cardholderlastname"></b-input>
+                <b-input type="number" v-model="expirationminutes" placeholder="expirationminutes"></b-input>
+
+                <pre class="mt-2 p-2 bg-dark text-white">{{ checkoutData }}</pre>
+
+                <b-btn variant="primary" @click="openVisanet" class="my-2">Open Visanet</b-btn>
+
+                <div v-if="checkoutRespuesta">
+                    <h4>Respuesta</h4>
+                    <pre>{{ checkoutRespuesta }}</pre>
+                </div>
+            
             </section>
         </div>
     </div>
@@ -61,13 +100,18 @@
     
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
+    <script src="https://static-content-qas.vnforapps.com/vToken/js/checkout.js"></script>
+
     <script>
+        const serverUrl = 'http://localhost:3000';
+
         const app = new Vue({
             el: '#app',
             data: {
-                serverUrl: 'http://rulokoba.me:3000/',
+                // serverUrl: 'http://rulokoba.me:3000/',
+                serverUrl,
                 // urlSecurity: 'https://apitestenv.vnforapps.com/api.security/v1/security',
-                urlSecurity: 'http://rulokoba.me:3000/newbiz/api.security/v1/security',
+                urlSecurity: `${serverUrl}/newbiz/api.security/v1/security`,
                 usuario: '',
                 password: '',
                 authorization: '',
@@ -76,13 +120,53 @@
                 securityKey: null,
 
                 // urlSession: 'https://apitestenv.vnforapps.com/api.ecommerce/v2/ecommerce/token/session',
-                urlSession: 'http://rulokoba.me:3000/newbiz/api.ecommerce/v2/ecommerce/token/session',
-                amount: '',
+                urlSession: `${serverUrl}/newbiz/api.ecommerce/v2/ecommerce/token/session`,
+                amount: 3,
                 merchantId: '342062522',
                 sessionRespuesta: '',
                 sessionError: '',
+                sessionKey: null,
+
+                action: `${serverUrl}/checkout`,
+                timeouturl: `${serverUrl}/timeout`,
+                purchasenumber: 123,
+                formbuttoncolor: '#44bbee',
+                cardholdername: 'Juan',
+                cardholderlastname: 'Pérez',
+                expirationminutes: '5',
+                timeouturl: `${serverUrl}/timeout`,
+                
+                VisanetCheckout: null,
+                checkoutRespuesta: '',
+
             },
             computed: {
+                sessionData() {
+                    const data = {
+                        amount: this.amount,
+                        channel: 'paycard',
+                    };
+                    return data;
+                },
+                checkoutData() {
+                    const data = {
+                        action: this.action,
+                        merchantid: this.merchantId,
+                        sessiontoken: this.sessionKey,
+                        amount: this.amount,
+                        purchasenumber: this.purchasenumber,
+
+                        channel: 'paycard',
+                        formbuttoncolor: this.formbuttoncolor,
+                        cardholdername: this.cardholdername,
+                        cardholderlastname: this.cardholderlastname,
+                        expirationminutes: this.expirationminutes,
+                        timeouturl: this.timeouturl,
+                        usertoken: this.securityKey,
+
+                    };
+                    return data;
+                },
             },
             methods: {
                 setAuthorization() {
@@ -100,6 +184,8 @@
                         'Content-Type': 'application/json',
                         'Authorization': this.authorization,
                     };
+                    this.securityRespuesta = null;
+                    this.securityError = null;
                     axios({
                         method: 'post',
                         url,
@@ -122,10 +208,10 @@
                         'Content-Type': 'application/json',
                         'Authorization': this.securityKey,
                     };
-                    const data = {
-                        amount: this.amount,
-                        channel: 'paycard',
-                    };
+                    const data = this.sessionData;
+
+                    this.sessionRespuesta = null;
+                    this.sessionError = null;
                     axios({
                         method: 'post',
                         url,
@@ -142,6 +228,21 @@
                             this.sessionError = error;
                         });
                 },
+
+                openVisanet() {
+                    this.checkoutRespuesta = null;
+                    const checkoutData = this.checkoutData;
+                    checkoutData.complete = function(params) {
+                        console.log(params);
+                        this.checkoutRespuesta = params;
+                    };
+
+                    this.VisanetCheckout.configure(checkoutData);
+                    this.VisanetCheckout.open();
+                },
+            },
+            mounted() {
+                this.VisanetCheckout = VisanetCheckout;
             }
         });
     </script>
