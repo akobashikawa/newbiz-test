@@ -47,7 +47,7 @@
             <section class="border p-4 shadow">
                 <h2>Session</h2>
                 <b-input type="text" v-model="urlSession" placeholder="URL"></b-input>
-                <b-input type="text" v-model="merchantId" placeholder="merchantId"></b-input>
+                <b-input type="text" v-model="merchantid" placeholder="merchantid"></b-input>
                 <b-input type="text" v-model="securityKey" placeholder="securityKey"></b-input>
                 <b-input type="number" v-model="amount" placeholder="amount"></b-input>
 
@@ -123,7 +123,7 @@
                 // urlSession: 'https://apitestenv.vnforapps.com/api.ecommerce/v2/ecommerce/token/session',
                 urlSession: `${serverUrl}/niubiz/api.ecommerce/v2/ecommerce/token/session`,
                 amount: 3,
-                merchantId: '',
+                merchantid: '',
                 sessionRespuesta: '',
                 sessionError: '',
                 sessionKey: null,
@@ -153,7 +153,7 @@
                 checkoutData() {
                     const data = {
                         action: this.action,
-                        merchantid: this.merchantId,
+                        merchantid: this.merchantid,
                         merchantlogo: this.merchantlogo,
                         sessiontoken: this.sessionKey,
                         amount: this.amount,
@@ -206,7 +206,7 @@
                 },
 
                 getSessionKey() {
-                    const url = `${this.urlSession}/${this.merchantId}`;
+                    const url = `${this.urlSession}/${this.merchantid}`;
                     const headers = {
                         'Content-Type': 'application/json',
                         'Authorization': this.securityKey,
